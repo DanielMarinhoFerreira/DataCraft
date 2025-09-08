@@ -21,32 +21,28 @@
  * 
  * Data: 2025/09/04
  * 
- * Totos os direitos reservados 
+ * Totos os direitos reservados https://github.com/DanielMarinhoFerreira/DataCraft 
  * 
  * Cria e inicializa uma DataTable de forma genérica e reutilizável.
+ * Agora com suporte a exportação CSV, Excel e PDF via DataTables Buttons.
  *
  * @param {string} NomeTabela - O ID da tabela HTML que será transformada em DataTable.
- * @param {number} QtdColunas - Quantidade total de colunas da tabela (usado para montar o array de configurações).
- * @param {number|Array} targets - Índice ou índices das colunas que receberão configurações específicas (ex: ocultar/ajustar).
- * @param {boolean} [Table_responsive=true] - Define se a tabela será responsiva (true) ou não (false).
- * @param {Array} [responsiveCols=[]] - Lista de definições de prioridade de colunas para o modo responsivo.
- *      Exemplo: [
- *          { responsivePriority: 1, targets: 0 },  // coluna mais importante
- *          { responsivePriority: 2, targets: 3 }   // segunda a ser exibida
- *      ]
- * @param {Array} [order=[[1, "desc"]]] - Define a ordenação inicial da tabela.
- *      - O índice da coluna começa em 0.
- *      - "asc" → ordem crescente (do menor para o maior).
- *      - "desc" → ordem decrescente (do maior para o menor).
- *
- * Exemplo de uso:
- * CreateDataTable("MinhaTabela", 12, 0, true, [
- *      { responsivePriority: 1, targets: [0,1] },
- *      { responsivePriority: 2, targets: [5] }
- * ], [[3, "desc"]]);
+ * @param {number} QtdColunas - Quantidade total de colunas da tabela.
+ * @param {number|Array} targets - Índice ou índices das colunas para configurações específicas.
+ * @param {boolean} [Table_responsive=true] - Define se a tabela será responsiva.
+ * @param {Array} [responsiveCols=[]] - Definições de prioridade de colunas para responsividade.
+ * @param {Array} [order=[[1, "desc"]]] - Ordenação inicial da tabela.
+ * @param {boolean} [enableExport=false] - Ativa os botões de exportação (CSV, Excel, PDF).
  */
-function CreateDataTable(NomeTabela, QtdColunas, targets, Table_responsive = true, responsiveCols = [], order = [[1, "desc"]]) {
-
+function CreateDataTable(
+    NomeTabela,
+    QtdColunas,
+    targets,
+    Table_responsive = true,
+    responsiveCols = [],
+    order = [[1, "desc"]],
+    enableExport = false // NOVO parâmetro para exportação
+) {
     // Monta dinamicamente a configuração de cada coluna (por padrão todas ordenáveis)
     let cols = [];
     for (let i = 0; i < QtdColunas; i++) {
@@ -55,14 +51,12 @@ function CreateDataTable(NomeTabela, QtdColunas, targets, Table_responsive = tru
 
     // Configuração base da DataTable
     let config = {
-        colReorder: { columns: ':not(:first-child, :last-child)' }, // permite reordenar colunas (exceto a primeira e última)
-        columnControl: ['order', ['searchList']],                  // ativa controles de coluna (ordenação e pesquisa)
-        
+        colReorder: { columns: ':not(:first-child, :last-child)' },
+        columnControl: ['order', ['searchList']],
         ordering: {
-            indicators: false, // remove indicadores visuais de ordenação
-            handler: false     // desabilita reordenação por arrastar
+            indicators: false,
+            handler: false
         },
-
         layout: {
             topEnd: {
                 search: {
@@ -71,9 +65,8 @@ function CreateDataTable(NomeTabela, QtdColunas, targets, Table_responsive = tru
                 }
             }
         },
-
         language: {
-            info: "_START_ até _END_ de _TOTAL_", // texto de paginação
+            info: "_START_ até _END_ de _TOTAL_",
             paginate: {
                 previous: "<i class='mdi mdi-chevron-left'>",
                 next: "<i class='mdi mdi-chevron-right'>"
@@ -84,30 +77,45 @@ function CreateDataTable(NomeTabela, QtdColunas, targets, Table_responsive = tru
                         '<option value="-1">Tudo</option>' +
                         '</select> registros',
         },
-
-        pageLength: 10,        // número padrão de registros por página
-        columns: cols,         // array de colunas configuradas dinamicamente
-        select: { style: "multi" }, // permite seleção múltipla de linhas
-        order: order,               // ordenação inicial definida por parâmetro
-
+        pageLength: 10,
+        columns: cols,
+        select: { style: "multi" },
+        order: order,
         drawCallback: function () {
-            // adiciona estilo customizado na paginação após cada render
             $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
         },
-
         initComplete: function () {
-            // estiliza o campo de busca após inicialização
             $('#dt-search-0').addClass('border border-radius-xl');
         }
     };
 
-    // Caso a tabela seja responsiva
+    // Exportação: adiciona botões se solicitado
+    if (enableExport) {
+        config.dom = 'Bfrtip';
+        config.buttons = [
+            {
+                extend: 'csvHtml5',
+                text: 'Exportar CSV',
+                className: 'btn btn-outline-primary'
+            },
+            {
+                extend: 'excelHtml5',
+                text: 'Exportar Excel',
+                className: 'btn btn-outline-success'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'Exportar PDF',
+                className: 'btn btn-outline-danger'
+            }
+        ];
+    }
+
+    // Responsividade
     if (Table_responsive) {
         config.responsive = {
-            details: { type: 'column', target: 0 } // coloca botão "+" na primeira coluna para expandir detalhes
+            details: { type: 'column', target: 0 }
         };
-
-        // Se o usuário passou prioridades específicas de colunas, aplica
         if (responsiveCols.length > 0) {
             config.columnDefs = responsiveCols;
         }
