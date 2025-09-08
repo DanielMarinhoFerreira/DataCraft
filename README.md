@@ -21,7 +21,7 @@ See a live demo:
 ### 1. Clone o repositório / Clone the repository
 
 ```bash
-git clone https://github.com/seuusuario/DataCraft.git
+git clone https://github.com/DanielMarinhoFerreira/DataCraft.git
 cd DataCraft
 ```
 
@@ -171,7 +171,7 @@ This project is licensed under the MIT License.
 Dúvidas ou sugestões?  
 Questions or suggestions?
 
-- Email: [seuemail@exemplo.com](mailto:seuemail@exemplo.com)
-- GitHub Issues: [https://github.com/seuusuario/DataCraft/issues](https://github.com/seuusuario/DataCraft/issues)
+- Email: [seuemail@exemplo.com](mailto:daniel.marinho.ferreira1@exemplo.com)
+- GitHub Issues: [https://github.com/DanielMarinhoFerreira/DataCraft/issues](https://github.com/DanielMarinhoFerreira/DataCraft/issues)
 
 ---
