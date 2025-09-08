@@ -1,0 +1,59 @@
+/* filepath: datatable-demo/css/index.css */
+
+/* Custom styles for the DataTable demonstration website */
+
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.table {
+    margin-bottom: 20px;
+}
+
+.table th, .table td {
+    text-align: center;
+}
+
+.donation-section {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.donation-section h2 {
+    margin-bottom: 20px;
+}
+
+.donation-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.donation-button:hover {
+    background-color: #218838;
+}
+
+.collaborators {
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+.collaborators a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.collaborators a:hover {
+    text-decoration: underline;
+}
