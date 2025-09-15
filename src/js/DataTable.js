@@ -16,111 +16,78 @@
  * 
  * */
 
-/*   
- * Autor: Daniel Marinho Ferreira de Souza 
- * 
- * Data: 2025/09/04
- * 
- * Totos os direitos reservados https://github.com/DanielMarinhoFerreira/DataCraft 
+/**    
+ * @author Daniel Marinho Ferreira de Souza 
+ * @Email daniel.marinho.ferreira1@gmail.com
+ * @github https://github.com/DanielMarinhoFerreira/DataCraft
  * 
  * Cria e inicializa uma DataTable de forma genérica e reutilizável.
- * Agora com suporte a exportação CSV, Excel e PDF via DataTables Buttons.
  *
  * @param {string} NomeTabela - O ID da tabela HTML que será transformada em DataTable.
- * @param {number} QtdColunas - Quantidade total de colunas da tabela.
- * @param {number|Array} targets - Índice ou índices das colunas para configurações específicas.
- * @param {boolean} [Table_responsive=true] - Define se a tabela será responsiva.
- * @param {Array} [responsiveCols=[]] - Definições de prioridade de colunas para responsividade.
- * @param {Array} [order=[[1, "desc"]]] - Ordenação inicial da tabela.
- * @param {boolean} [enableExport=false] - Ativa os botões de exportação (CSV, Excel, PDF).
+ * @param {number} QtdColunas - Quantidade total de colunas da tabela (usado para montar o array de configurações).
+ * @param {number|Array} targets - Índice ou índices das colunas que receberão configurações específicas (ex: ocultar/ajustar).
+ * @param {boolean} [Table_responsive=true] - Define se a tabela será responsiva (true) ou não (false).
+ * @param {Array} [responsiveCols=[]] - Lista de definições de prioridade de colunas para o modo responsivo.
+ *      Exemplo: [
+ *          { responsivePriority: 1, targets: 0 },  // coluna mais importante
+ *          { responsivePriority: 2, targets: 3 }   // segunda a ser exibida
+ *      ]
+ * @param {Array} [order=[[1, "desc"]]] - Define a ordenação inicial da tabela.
+ *      - O índice da coluna começa em 0.
+ *      - "asc" → ordem crescente (do menor para o maior).
+ *      - "desc" → ordem decrescente (do maior para o menor).
+ *
+ * Exemplo de uso:
+ * CreateDataTable("MinhaTabela", 12, 0, true, [
+ *      { responsivePriority: 1, targets: [0,1] },
+ *      { responsivePriority: 2, targets: [5] }
+ * ], [[3, "desc"]]);
+ * @param {number} [pageLen=5] -  número padrão de registros por página
+ *      - O numero de pagina é 5, 10 ou 25
  */
-function CreateDataTable(
-    NomeTabela,
-    QtdColunas,
-    targets,
-    Table_responsive = true,
-    responsiveCols = [],
-    order = [[1, "desc"]],
-    enableExport = false // NOVO parâmetro para exportação
-) {
-    // Monta dinamicamente a configuração de cada coluna (por padrão todas ordenáveis)
+function CreateDataTable(NomeTabela, QtdColunas, Table_responsive = true, responsiveCols = [], order = [[1, "desc"]], pageLen = 5) {
+    // Configuração das colunas
     let cols = [];
     for (let i = 0; i < QtdColunas; i++) {
         cols.push({ orderable: true });
     }
 
-    // Configuração base da DataTable
+    // Configuração DataTable 1.x
     let config = {
+        paging: true,              // Paginação
+        searching: true,           // Habilita campo de busca
+        pageLength: pageLen,       // Quantidade de registros por página
+        order: order,              // Ordenação inicial
+        columns: cols,             // Colunas configuradas
+        responsive: Table_responsive, // Responsividade básica
+        columnDefs: responsiveCols,   // Prioridade de colunas responsivas
         colReorder: { columns: ':not(:first-child, :last-child)' },
         columnControl: ['order', ['searchList']],
-        ordering: {
-            indicators: false,
-            handler: false
-        },
-        layout: {
-            topEnd: {
-                search: {
-                    placeholder: 'Pesquise aqui',
-                    text: 'Pesquisa : _INPUT_'
-                }
-            }
+        ordering: {             // Ordenação de colunas
+            indicators: false, // remove indicadores visuais de ordenação
+            handler: false     // desabilita reordenação por arrastar
         },
         language: {
-            info: "_START_ até _END_ de _TOTAL_",
+            info: "_START_ até _END_ de _TOTAL_ registros",
             paginate: {
                 previous: "<i class='mdi mdi-chevron-left'>",
                 next: "<i class='mdi mdi-chevron-right'>"
             },
-            lengthMenu: 'Exibir <select class="custom-select custom-select-sm ml-1 mr-1">' +
-                        '<option value="10">10</option>' +
-                        '<option value="25">25</option>' +
-                        '<option value="-1">Tudo</option>' +
-                        '</select> registros',
+            lengthMenu: 'Exibir <select>' +
+                '<option value="5">5</option>' +
+                '<option value="10">10</option>' +
+                '<option value="25">25</option>' +
+                '<option value="-1">Tudo</option>' +
+                '</select> registros'
         },
-        pageLength: 10,
-        columns: cols,
-        select: { style: "multi" },
-        order: order,
         drawCallback: function () {
             $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
-        },
-        initComplete: function () {
-            $('#dt-search-0').addClass('border border-radius-xl');
         }
     };
 
-    // Exportação: adiciona botões se solicitado
-    if (enableExport) {
-        config.dom = 'Bfrtip';
-        config.buttons = [
-            {
-                extend: 'csvHtml5',
-                text: 'Exportar CSV',
-                className: 'btn btn-outline-primary'
-            },
-            {
-                extend: 'excelHtml5',
-                text: 'Exportar Excel',
-                className: 'btn btn-outline-success'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: 'Exportar PDF',
-                className: 'btn btn-outline-danger'
-            }
-        ];
-    }
+    DataTable.type('num', 'className', 'dt-body-right');
+    DataTable.type('num-fmt', 'className', 'dt-body-right');
+    DataTable.type('date', 'className', 'dt-body-right');
 
-    // Responsividade
-    if (Table_responsive) {
-        config.responsive = {
-            details: { type: 'column', target: 0 }
-        };
-        if (responsiveCols.length > 0) {
-            config.columnDefs = responsiveCols;
-        }
-    }
-
-    // Inicializa a DataTable na tabela indicada
     $("#" + NomeTabela).DataTable(config);
 }
